@@ -10,7 +10,8 @@ public abstract class Client {
     private PrintWriter out;
 
     protected void connectToServer() throws IOException {
-        try (Socket socket = new Socket("localhost", PORT)) {
+        Socket socket = new Socket("localhost", PORT);
+        try {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
             System.out.println("Підключено до сервера");
