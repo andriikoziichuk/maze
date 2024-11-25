@@ -3,8 +3,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.stream.IntStream;
+import org.apache.commons.collections4.queue.CircularFifoQueue;
 
 class ClientHandler extends Thread {
     private final MazeServer mazeServer;
@@ -14,6 +17,7 @@ class ClientHandler extends Thread {
     private String playerName;
     private final long startTime;
     private boolean isMagicMode;
+    private Queue<String> commandQueue = new CircularFifoQueue<>(4);
 
     public ClientHandler(MazeServer mazeServer, Socket socket) {
         this.mazeServer = mazeServer;
@@ -118,6 +122,7 @@ class ClientHandler extends Thread {
                     });
         }
 
+        commandQueue.add(message);
     }
 
     private void sendGameState() {
@@ -163,6 +168,9 @@ class ClientHandler extends Thread {
                     }
                 }
                 case "UP" -> {
+                    if (commandQueue.stream().allMatch(cmd -> cmd.equals("UP"))) {
+                        killPlayer(playerSymbol);
+                    }
                     if (y - 1 >= 0 && (maze[y - 1][x] == MazeServer.EMPTY || maze[y - 1][x] == MazeServer.DIAMOND)) {
                         y--;
                     }
